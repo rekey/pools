@@ -10,12 +10,12 @@ go get -v github.com/rekey/pools
 
 ```go
 //p := pools.NewPools(maxThreadCount, StopOnError)
-p := pools.NewPools(5, true)
+p := pools.NewPools(10, true)
 for i := 0; i < 15; i++ {
     (func(i int) {
         p.Push(func() error {
             if i == 3 {
-            return errors.New("test error")
+                return errors.New("test error")
             }
             log.Println("p.Run", i)
             return nil
