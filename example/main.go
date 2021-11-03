@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	p := pools.NewPools(5, true)
+	p := pools.NewPools(10, true)
 	for i := 0; i < 15; i++ {
 		(func(i int) {
 			//log.Println("p.Push", i)

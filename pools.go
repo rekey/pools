@@ -42,6 +42,18 @@ func (that *Pools) remove() {
 	that.thread -= 1
 }
 
+func (that *Pools) stop() {
+	that.rw.Lock()
+	defer that.rw.Unlock()
+	that.canRun = false
+}
+
+func (that *Pools) start() {
+	that.rw.Lock()
+	defer that.rw.Unlock()
+	that.canRun = true
+}
+
 func (that *Pools) unshift() *Fn {
 	that.rw.Lock()
 	defer that.rw.Unlock()
@@ -59,10 +71,11 @@ func (that *Pools) unshift() *Fn {
 }
 
 func (that *Pools) Run() error {
-	that.canRun = true
+	that.start()
 	var err error
 	for that.canRun {
-		if that.stopOnError && err != nil {
+		if (that.stopOnError && err != nil) || len(that.fns) == 0 {
+			that.stop()
 			break
 		}
 		if len(that.fns) > 0 && that.thread <= that.max {
@@ -81,9 +94,6 @@ func (that *Pools) Run() error {
 					}
 				}()
 			}
-		}
-		if len(that.fns) == 0 {
-			that.canRun = false
 		}
 	}
 	that.wg.Wait()
